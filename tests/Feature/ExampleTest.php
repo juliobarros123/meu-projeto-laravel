@@ -10,7 +10,7 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        // Este teste vai passar (por enquanto)
+        // Este teste vai passar (por enquanto) foi alterado para 200, mas vamos quebrar ele depois
         $response->assertStatus(200);
     }
 
