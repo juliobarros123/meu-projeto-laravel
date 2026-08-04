@@ -22,4 +22,4 @@ jobs:
       
       - name: Lint (opcional - Laravel Pint)
         run: |
-          docker run --rm laravel-app:test ./vendor/bin/pint --test || true# Ativando workflow
+          docker run --rm laravel-app:test ./vendor/bin/pint --test || true
