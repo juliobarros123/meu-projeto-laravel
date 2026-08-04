@@ -6,7 +6,7 @@ services:
     container_name: laravel-test
     environment:
       - APP_ENV=testing
-      - APP_KEY=base64:AWJgz11oq/NoetgpvcgIh8F4RyfhubPsA2m+9TzaB5o=
+      - APP_KEY=base64:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEF=
       - DB_CONNECTION=mysql
       - DB_HOST=mysql
       - DB_PORT=3306
