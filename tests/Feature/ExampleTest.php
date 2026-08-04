@@ -20,6 +20,6 @@ class ExampleTest extends TestCase
         $result = 2 + 2;
 
         // Mudamos de 4 para 5 para quebrar
-        $this->assertEquals(4, $result);
+        $this->assertEquals(5, $result);  // ❌ Vai falhar!
     }
 }
