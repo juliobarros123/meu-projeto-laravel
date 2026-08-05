@@ -32,3 +32,8 @@ jobs:
     steps:
       - name: Login no registry
         run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ...
+      - name: Gerar Versão
+        id: version
+        run: echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Usar a versão gerada
+        run: echo "A tag é ${{ steps.version.outputs.tag }}" 
