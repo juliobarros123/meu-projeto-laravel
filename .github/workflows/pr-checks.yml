@@ -27,5 +27,8 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    env:
+      APP_ENV: production
     steps:
-      - run: echo "buildando..."
+      - name: Login no registry
+        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ...
