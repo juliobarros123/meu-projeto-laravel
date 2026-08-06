@@ -1,21 +1,16 @@
+# .github/workflows/pr-checks.yml
 name: PR Checks
-
 on:
   pull_request:
     branches: [main]
-
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4 
+      - uses: actions/checkout@v4
       - name: Build imagem de teste
-        run: |
-          docker build --target test -t app:test .
+        run: docker build --target test -t app:test .
       - name: Rodar testes
-        run: |
-          docker run --rm app:test php artisan test
+        run: docker run --rm app:test php artisan test
       - name: Lint (Laravel Pint)
-        run: |
-          docker run --rm app:test php artisan pint
+        run: docker run --rm app:test ./vendor/bin/pint --test
