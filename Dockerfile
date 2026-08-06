@@ -1,36 +1,14 @@
-FROM php:8.2-fpm
-
-# Instalar dependências do sistema
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
-
-# Limpar cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Instalar extensões PHP
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Definir diretório de trabalho
+FROM php:8.3-fpm AS base
+RUN apt-get update && apt-get install -y libzip-dev unzip \
+ && docker-php-ext-install pdo pdo_mysql zip
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
-
-# Copiar arquivos do projeto
 COPY . .
 
-# Instalar dependências do Laravel
-RUN composer install --no-interaction --optimize-autoloader
+FROM base AS test
+RUN composer install --prefer-dist --no-interaction
+# nesta imagem, tudo que o phpunit.xml e a suíte de testes precisam já está presente
 
-# Permissões
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-
-EXPOSE 8000
-
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+FROM base AS production
+RUN composer install --no-dev --optimize-autoloader --prefer-dist \
+ && php artisan config:cache

@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: test
     container_name: laravel-test
     environment:
       - APP_ENV=testing
@@ -19,7 +20,7 @@ services:
     command: php artisan test
 
   mysql:
-    image: mysql:8.0
+    image: mysql:8.4
     container_name: mysql-test
     environment:
       MYSQL_ROOT_PASSWORD: root

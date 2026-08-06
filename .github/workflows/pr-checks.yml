@@ -9,31 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build Docker image
+      - uses: actions/checkout@v4 
+      - name: Build imagem de teste
         run: |
-          docker build -t laravel-app:test .
-
-      - name: Run tests with Docker Compose
+          docker build --target test -t app:test .
+      - name: Rodar testes
         run: |
-          docker compose -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from app
-
-      - name: Lint (opcional - Laravel Pint)
+          docker run --rm app:test php artisan test
+      - name: Lint (Laravel Pint)
         run: |
-          docker run --rm laravel-app:test ./vendor/bin/pint --test || true
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    env:
-      APP_ENV: production
-    steps:
-      - name: Login no registry
-        run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ...
-      - name: Gerar Versão
-        id: version
-        run: echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-      - name: Usar a versão gerada
-        run: echo "A tag é ${{ steps.version.outputs.tag }}" 
+          docker run --rm app:test php artisan pint
