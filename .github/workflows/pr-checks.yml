@@ -1,5 +1,5 @@
 # .github/workflows/pr-checks.yml
-name: PR Checks
+name: Build, Test & Deploy 
 on:
   pull_request:
     branches: [main]
