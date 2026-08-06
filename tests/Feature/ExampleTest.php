@@ -17,7 +17,7 @@ class ExampleTest extends TestCase
     // Vamos adicionar um teste que vamos quebrar propositalmente
     public function test_math_operation(): void
     {
-        $result = 2 + 2;
+        $result = 2 + 2 ;
         $this->assertEquals(4, $result);
     }
 }
