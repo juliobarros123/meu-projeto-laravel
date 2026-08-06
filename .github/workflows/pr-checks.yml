@@ -1,25 +1,16 @@
+# .github/workflows/pr-checks.yml
 name: PR Checks
-
 on:
   pull_request:
     branches: [main]
-
 jobs:
   test:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Build Docker image
-        run: |
-          docker build -t laravel-app:test .
-      
-      - name: Run tests with Docker Compose
-        run: |
-          docker-compose -f docker-compose.test.yml up --abort-on-container-exit --exit-code-from app
-      
-      - name: Lint (opcional - Laravel Pint)
-        run: |
-          docker run --rm laravel-app:test ./vendor/bin/pint --test || true
+      - uses: actions/checkout@v4
+      - name: Build imagem de teste
+        run: docker build --target test -t app:test .
+      - name: Rodar testes
+        run: docker run --rm -e APP_KEY="base64:$(openssl rand -base64 32)" app:test php artisan test
+      - name: Lint (Laravel Pint)
+        run: docker run --rm app:test ./vendor/bin/pint --test
