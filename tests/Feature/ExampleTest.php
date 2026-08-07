@@ -18,6 +18,6 @@ class ExampleTest extends TestCase
     public function test_math_operation(): void
     {
         $result = 2 + 2;
-        $this->assertEquals(4, $result);
+        $this->assertEquals(4, $result); 
     }
 }
