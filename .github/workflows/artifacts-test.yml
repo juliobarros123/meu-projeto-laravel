@@ -2,22 +2,25 @@
 name: Teste de Artifacts
 
 on:
-  workflow_dispatch:  # Botão manual para testar
+  workflow_dispatch:
 
 jobs:
   gerar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Build imagem de teste
         run: docker build --target test -t app:test .
-      
+
       - name: Rodar testes e gerar cobertura
         run: |
-              docker run --rm -e APP_KEY="base64:$(openssl rand -base64 32)" app:test php artisan test
-              echo "<coverage><project/></coverage>" > coverage.xml
-      
+          docker run --rm \
+            -e APP_KEY="base64:$(openssl rand -base64 32)" \
+            -v "${{ github.workspace }}:/var/www/output" \
+            app:test \
+            php artisan test --coverage-clover=/var/www/output/coverage.xml
+
       - name: Upload do artifact
         uses: actions/upload-artifact@v4
         with:
@@ -33,6 +36,6 @@ jobs:
         with:
           name: coverage-report
           path: .
-      
+
       - name: Ler o arquivo
         run: cat coverage.xml
