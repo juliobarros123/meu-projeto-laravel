@@ -35,6 +35,4 @@ jobs:
           path: .
       
       - name: Ler o arquivo
-        run: |
-          ls -la
-          cat coverage.xml || echo "Arquivo não encontrado!"
+        run: cat coverage.xml
