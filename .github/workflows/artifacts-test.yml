@@ -1,0 +1,40 @@
+# .github/workflows/artifacts-test.yml
+name: Teste de Artifacts
+
+on:
+  workflow_dispatch:  # Botão manual para testar
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build imagem de teste
+        run: docker build --target test -t app:test .
+      
+      - name: Gerar relatório de cobertura
+        run: |
+          docker run --rm app:test php artisan test --coverage-clover=coverage.xml
+          ls -la coverage.xml  # Verifica se o arquivo foi criado
+      
+      - name: Upload do artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  ler:
+    needs: gerar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download do artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: .
+      
+      - name: Ler o arquivo
+        run: |
+          ls -la
+          cat coverage.xml || echo "Arquivo não encontrado!"
