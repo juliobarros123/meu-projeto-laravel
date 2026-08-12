@@ -4,6 +4,7 @@ name: Build, Test & Deploy
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:  # ← Botão manual!
 
 jobs:
   test:
@@ -21,20 +22,21 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     env:
-      APP_ENV: production              # ← env: disponível em todos os steps
+      APP_ENV: production
 
     steps:
       - uses: actions/checkout@v4
       
       - name: Login no registry
         run: echo "${{ secrets.REGISTRY_TOKEN }}" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
-        # ↑ secrets.REGISTRY_TOKEN (configurado no GitHub)
       
       - name: Gerar versão
-        id: version                     # ← id para referenciar
+        id: version
         run: echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-        # ↑ escreve no GITHUB_OUTPUT
       
       - name: Buildar e taguear com a versão gerada
-        run: docker build -t ghcr.io/org/app:${{ steps.version.outputs.tag }} .
-        # ↑ usa steps.version.outputs.tag
+        run: docker build -t ghcr.io/juliobarros123/meu-projeto-laravel:${{ steps.version.outputs.tag }} .
+        #         ↑ Use SEU usuário!
+      
+      - name: Publicar imagem no registry
+        run: docker push ghcr.io/juliobarros123/meu-projeto-laravel:${{ steps.version.outputs.tag }}
