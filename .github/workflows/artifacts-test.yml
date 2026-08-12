@@ -15,8 +15,7 @@ jobs:
       
       - name: Rodar testes e gerar cobertura
         run: |
-              docker run --rm -e APP_KEY="base64:$(openssl rand -base64 32)" app:test php artisan test --coverage-text
-              # Ou apenas ignore a cobertura e use um arquivo vazio
+              docker run --rm -e APP_KEY="base64:$(openssl rand -base64 32)" app:test php artisan test
               echo "<coverage><project/></coverage>" > coverage.xml
       
       - name: Upload do artifact
