@@ -19,16 +19,15 @@ jobs:
           docker run --rm \
             -e APP_ENV=testing \
             -e XDEBUG_MODE=coverage \
+            -e APP_KEY="base64:$(openssl rand -base64 32)" \
             --name test-runner \
             app:test \
             /bin/sh -c "
               # Configura ambiente
               echo 'APP_ENV=testing' > .env
+              echo 'APP_KEY=$APP_KEY' >> .env
               echo 'DB_CONNECTION=sqlite' >> .env
               echo 'DB_DATABASE=:memory:' >> .env
-              
-              # Gera a APP_KEY automaticamente
-              php artisan key:generate --force
               
               # Executa testes
               php artisan test --coverage-clover=/var/www/coverage.xml
