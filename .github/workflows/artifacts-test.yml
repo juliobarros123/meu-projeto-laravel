@@ -16,14 +16,26 @@ jobs:
       - name: Rodar testes e gerar cobertura
         run: |
           docker run --rm \
-            -e APP_KEY="base64:$(openssl rand -base64 32)" \
             -e APP_ENV=testing \
             -e XDEBUG_MODE=coverage \
             -v "${{ github.workspace }}:/var/www/output" \
             app:test \
-            sh -c "cp .env.example .env 2>/dev/null || echo 'APP_ENV=testing' > .env && \
-                   php artisan key:generate && \
-                   php artisan test --coverage-clover=/var/www/output/coverage.xml"
+            bash -c "
+              # Cria .env se não existir
+              if [ ! -f .env ]; then
+                if [ -f .env.example ]; then
+                  cp .env.example .env
+                else
+                  echo 'APP_ENV=testing' > .env
+                fi
+              fi
+              
+              # Gera a APP_KEY
+              php artisan key:generate --force
+              
+              # Roda os testes com coverage
+              php artisan test --coverage-clover=/var/www/output/coverage.xml
+            "
 
       - name: Upload do artifact
         uses: actions/upload-artifact@v4
