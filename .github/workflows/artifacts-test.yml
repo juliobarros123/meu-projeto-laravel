@@ -13,25 +13,22 @@ jobs:
       - name: Build imagem de teste
         run: docker build --target test -t app:test .
 
-      - name: Gerar APP_KEY
-        id: generate_key
-        run: echo "APP_KEY=base64:$(openssl rand -base64 32)" >> $GITHUB_OUTPUT
-
       - name: Rodar testes e gerar cobertura
         run: |
           # Executa os testes dentro do container
           docker run --rm \
             -e APP_ENV=testing \
             -e XDEBUG_MODE=coverage \
-            -e APP_KEY="${{ steps.generate_key.outputs.APP_KEY }}" \
             --name test-runner \
             app:test \
             /bin/sh -c "
               # Configura ambiente
               echo 'APP_ENV=testing' > .env
-              echo 'APP_KEY=${{ steps.generate_key.outputs.APP_KEY }}' >> .env
               echo 'DB_CONNECTION=sqlite' >> .env
               echo 'DB_DATABASE=:memory:' >> .env
+              
+              # Gera a APP_KEY automaticamente
+              php artisan key:generate --force
               
               # Executa testes
               php artisan test --coverage-clover=/var/www/coverage.xml
