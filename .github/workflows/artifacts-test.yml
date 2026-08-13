@@ -13,31 +13,25 @@ jobs:
       - name: Build imagem de teste
         run: docker build --target test -t app:test .
 
-      - name: Criar .env localmente
-        run: |
-          echo "APP_ENV=testing" > .env
-          echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env
-          echo "DB_CONNECTION=sqlite" >> .env
-          echo "DB_DATABASE=:memory:" >> .env
-
       - name: Rodar testes e gerar cobertura
         run: |
+          # Cria um container e executa os testes
           docker run --rm \
             -e APP_ENV=testing \
             -e XDEBUG_MODE=coverage \
-            -v "${{ github.workspace }}:/var/www" \
+            --name test-container \
             app:test \
-            php artisan test --coverage-clover=/var/www/output/coverage.xml
-
-      - name: Criar diretório de saída
-        run: mkdir -p output
-
-      - name: Copiar coverage do container
-        run: |
-          docker run --rm \
-            -v "${{ github.workspace }}:/var/www" \
-            app:test \
-            bash -c "cp /var/www/output/coverage.xml /var/www/coverage.xml 2>/dev/null || echo 'Arquivo não encontrado'"
+            /bin/sh -c "
+              # Cria .env
+              echo 'APP_ENV=testing' > .env
+              echo 'APP_KEY=base64:$(openssl rand -base64 32)' >> .env
+              
+              # Roda os testes
+              php artisan test --coverage-clover=/var/www/coverage.xml
+            "
+          
+          # Copia o arquivo de cobertura do container
+          docker cp test-container:/var/www/coverage.xml ./coverage.xml 2>/dev/null || echo "Arquivo não encontrado"
 
       - name: Upload do artifact
         uses: actions/upload-artifact@v4
