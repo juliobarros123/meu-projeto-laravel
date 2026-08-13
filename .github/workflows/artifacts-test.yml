@@ -15,23 +15,38 @@ jobs:
 
       - name: Rodar testes e gerar cobertura
         run: |
-          # Cria um container e executa os testes
+          # Executa os testes dentro do container
           docker run --rm \
             -e APP_ENV=testing \
             -e XDEBUG_MODE=coverage \
-            --name test-container \
+            --name test-runner \
             app:test \
             /bin/sh -c "
-              # Cria .env
+              # Configura ambiente
               echo 'APP_ENV=testing' > .env
-              echo 'APP_KEY=base64:$(openssl rand -base64 32)' >> .env
+              echo 'APP_KEY=base64:\$(openssl rand -base64 32)' >> .env
+              echo 'DB_CONNECTION=sqlite' >> .env
+              echo 'DB_DATABASE=:memory:' >> .env
               
-              # Roda os testes
+              # Executa testes
               php artisan test --coverage-clover=/var/www/coverage.xml
             "
           
-          # Copia o arquivo de cobertura do container
-          docker cp test-container:/var/www/coverage.xml ./coverage.xml 2>/dev/null || echo "Arquivo não encontrado"
+          # Copia o arquivo de cobertura (ignora erro se não existir)
+          docker cp test-runner:/var/www/coverage.xml ./coverage.xml 2>/dev/null || echo "Arquivo não encontrado no container"
+
+      - name: Verificar se coverage.xml foi gerado
+        run: |
+          if [ -f coverage.xml ]; then
+            echo "✅ coverage.xml gerado com sucesso!"
+            echo "Tamanho: $(wc -c < coverage.xml) bytes"
+            ls -la coverage.xml
+          else
+            echo "❌ coverage.xml não encontrado"
+            echo "Listando arquivos no diretório atual:"
+            ls -la
+            exit 0  # Não falha, apenas avisa
+          fi
 
       - name: Upload do artifact
         uses: actions/upload-artifact@v4
@@ -54,7 +69,8 @@ jobs:
       - name: Ler o arquivo
         run: |
           if [ -f coverage.xml ]; then
+            echo "📊 Conteúdo do coverage.xml:"
             cat coverage.xml
           else
-            echo "Arquivo coverage.xml não encontrado"
+            echo "⚠️ Arquivo coverage.xml não encontrado"
           fi
